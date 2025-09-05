@@ -37,7 +37,7 @@ icon: list-radio
 
 ### XSS
 
-#### **Lab 3: DOM-Based XSS in Dynamic Theme Switcher**&#x20;
+#### **Lab 3: DOM-Based XSS in Dynamic Theme Switcher (client side)**
 
 * **Attack Type:** DOM-Based XSS
 * **Name:** Themed Deception
@@ -48,7 +48,7 @@ icon: list-radio
   2. **Payload:** `http://vulnerable-site.com/theme#theme=red;</style><script>alert(localStorage.getItem('flag'))</script>`
   3. This payload first closes the `<style>` tag and then injects a new `<script>` tag. When the victim visits this URL, the malicious script executes, accessing Local Storage and exfiltrating the flag. The server never sees the payload; the attack happens entirely in the victim's browser.
 
-#### **Lab 4:** Search Poisoning
+#### **Lab 4:** Search Poisoning (client side)
 
 * **Attack Type:** Reflected XSS (Cross-Site Scripting)
 * **Level:** Easy
