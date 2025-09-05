@@ -1,5 +1,6 @@
 ---
 description: Here is some list of challenges, that could be made and deployed
+icon: list-dropdown
 ---
 
 # CTF Challenges List (Web)
@@ -74,6 +75,22 @@ description: Here is some list of challenges, that could be made and deployed
   2. For SQLite, a payload like this is used: `product_id=' AND (CASE WHEN (SELECT substr(sqlite_version(),1,1)='3') THEN LIKE('ABCDEFG',UPPER(HEX(RANDOMBLOB(300000000/2)))) ELSE 1 END) --`
   3. A more universal, simpler payload for testing might be: `product_id='; SELECT CASE WHEN (1=1) THEN pg_sleep(10) ELSE pg_sleep(0) END --` (for PostgreSQL).
   4. The attacker measures the response time. If the response is delayed by 10 seconds, the condition (`1=1`) is true. They can then change the condition to ask about each character of the `sqlite_version()` string, exfiltrating it one character at a time based on delayed responses.
+
+
+
+#### **Lab 6: Week Hashing**
+
+* **Attack Type:** Weak Cryptography / Hash Cracking
+* **Level:** Easy/Medium
+* **Scenario:** You are trying to access the admin panel of "CryptoCorp's" internal system. You've managed to leak a database fragment containing a user's password hash. The hint says: "The developer thought using MD5 was a great idea for speed."
+* **Where the Flag is Hidden:** The flag is displayed after successfully logging into the admin account using the cracked password.
+* **How to Solve:**
+  1. The user finds the hash `e6b061c9677b4e6e7d6925d6c269ac47` (which is the MD5 hash of `secret123`) in a publicly accessible `/debug` page or through a basic SQL injection (`' UNION SELECT 1,password,3 FROM users--`).
+  2. The attacker recognizes the format as a 32-character MD5 hash.
+  3. The attacker uses a tool like `hashcat`, `john`, or an online rainbow table (e.g., CrackStation) to crack the hash.
+  4. **Payload:** The cracked password is `secret123`.
+  5. The attacker logs into the admin account (`admin : secret123`) to access the dashboard and retrieve the flag.
+* **Flag:** `RAZZ{md5_i5_n0t_5ecur3}`
 
 </details>
 
@@ -502,4 +519,3 @@ description: Here is some list of challenges, that could be made and deployed
   5. The server includes the `php://input` "file", which is the POST body, and executes the PHP code within it. This code exfiltrates the flag to the attacker's server. This demonstrates how a simple LFI can become a critical RCE under specific conditions.
 
 </details>
-

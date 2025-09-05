@@ -9,3 +9,4 @@
 ***
 
 * [CTF Challenges List (Web)](ctf-challenges-list-web.md)
+* [Easy Challenges List](easy-challenges-list.md)
