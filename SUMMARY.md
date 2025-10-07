@@ -8,5 +8,6 @@
 
 ***
 
-* [CTF Challenges List (Web)](ctf-challenges-list-web.md)
-* [Easy Challenges List](easy-challenges-list.md)
+* [CTF Challenges List (Web)](ctf-challenges-list-web/README.md)
+  * [Easy Challenges List](ctf-challenges-list-web/easy-challenges-list.md)
+  * [Medium Challenge List](ctf-challenges-list-web/medium-challenge-list.md)

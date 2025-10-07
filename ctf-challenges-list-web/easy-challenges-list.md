@@ -1,5 +1,5 @@
 ---
-description: Some Web List of Easy Challenges Labs for Web expllot
+description: Some Web List of Easy Challenges Labs for Web exploit
 icon: list-radio
 ---
 
