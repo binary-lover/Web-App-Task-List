@@ -62,8 +62,7 @@ X-Flag: RAZZ{tr4c3_m3th0d_3nabl3d}
 Custom-Header: test
 ```
 
-\
-
+<br>
 
 ### **3. Cache Deception with Parameter Pollution**
 

