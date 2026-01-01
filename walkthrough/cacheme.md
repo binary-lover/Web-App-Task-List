@@ -8,8 +8,6 @@ icon: users-rectangle
 
 You're an intern integrating "CyberCorp" the new in-house caching library. The API is flawless, but the developer portal hides strange config snippets, references to shadow endpoints and dormant feature flags the senior devs dismiss as "internal tools."
 
-<br>
-
 Your code works, but your instincts scream. This library isn't just storing data; it's hiding something. While the team celebrates the performance boost, you're digging, convinced that the very thing making the system faster is also its most dangerous blind spot. You need to find the flaw they either don't see or don't want you to see.
 
 Creds:&#x20;
@@ -19,8 +17,44 @@ Creds:&#x20;
 
 
 
-\
-CacheMe Overview and flow of Solution
+### Cache **Deception**&#x20;
+
+#### **What is Cache Deception?**
+
+Cache Deception is a web vulnerability where an attacker tricks a caching server (like Varnish, CDNs, or reverse proxies) into storing and serving a sensitive, user-specific page as a public cached resource. Unlike Cache Poisoning (where malicious content is injected), here the attacker steals cached private data from other users.
+
+#### **How Does it Work?**
+
+1. **The Trick**: An attacker requests a non-sensitive page with a deceptive URL, like `example.com/account/profile.css`.
+2. **Server Misunderstanding**: The server might ignore the `.css` extension and serve the private `/account/profile` page.
+3. **Caching Error**: The caching system sees `.css` (a "cacheable" static extension) and stores the private page.
+4. **Data Leak**: When another user visits `example.com/account/profile.css`, they receive the attacker’s cached private page.
+
+#### **Real-World Impact**
+
+* **Session hijacking**: Cached pages may contain CSRF tokens, authentication cookies, or personal data.
+* **Information disclosure**: User-specific dashboards, API keys, or financial data can be exposed.
+* **Widespread effect**: One request can leak data to many users across a CDN.
+
+#### **The Root Cause**
+
+The vulnerability arises from a mismatch:
+
+* **Cache key**: Often based on URL extensions (treating `.css` as static).
+* **Backend behavior**: Dynamic routes that ignore extensions, serving private content.
+
+#### **How to Protect Your Application**
+
+1. **Cache Intelligently**: Avoid caching based solely on file extensions. Use explicit cache-control headers (`private`, `no-store`) for authenticated pages.
+2. **User-Specific Caching**: Configure caches to include session identifiers or authentication state in cache keys.
+3. **Path Validation**: Ensure static file handlers validate paths before serving content.
+4. **Security Headers**: Implement `Vary: Cookie` headers to differentiate cached responses by user.
+
+#### **The Bottom Line**
+
+Cache Deception turns a performance feature into a privacy threat. By understanding caching logic and applying security-aware configurations, developers can prevent this subtle but dangerous vulnerability.
+
+## CacheMe Overview and flow of Solution
 
 1. Login with given credentials
 
@@ -28,7 +62,7 @@ CacheMe Overview and flow of Solution
 
 <br>
 
-2. Head over to doc you will see many files here trying to open each file one by one but you see most of the files can’t be accessed directly as an intern user, for internal walkthrough our file target is Q4-2024-Roadmap. It stores our files.
+2. Head over to doc you will see many files here trying to open each file one by one but you see most of the files can’t be accessed directly as an intern user, for internal walkthrough our file target is\_\_\_\_\_\_\_\_\_\_. It stores our files.
 
 <figure><img src="../.gitbook/assets/unknown (1).png" alt=""><figcaption></figcaption></figure>
 
@@ -60,13 +94,13 @@ We got response&#x20;
 
 <figure><img src="../.gitbook/assets/image (1).png" alt=""><figcaption></figcaption></figure>
 
-Means the file is cached as as now stop the proxy and click again on Q4-2024-Roadmap
+Means the file is cached as as now stop the proxy and click again on the document&#x20;
 
 
 
-6.  Click on the file and get the content
+6. Click on the file and get the content
 
-    <figure><img src="../.gitbook/assets/image (2).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (6).png" alt=""><figcaption></figcaption></figure>
 
 
 
